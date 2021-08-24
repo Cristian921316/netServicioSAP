@@ -227,23 +227,26 @@ namespace netServicioSAP.Dto
                 oSClient.ClientCredentials.UserName.Password = "D?#7;kK3e9g7.9";
                 oSClient.Open();
 
-
+                //Stopwatch stotwatch = new Stopwatch();
+                //stotwatch.Start();
                 ImportacionPesosPedidosType_resp respuesta = oSClient.ImportacionPesosPedidos_OS(pedidosSend);
+                //stotwatch.Stop();
+                //Console.WriteLine(stotwatch.Elapsed.TotalSeconds);
 
                 //convert to XML
-                string XML_resp = "";
+                string XMl_Req = "";
                 using (var stringwriter = new System.IO.StringWriter())
                 {
-                    var serializer = new XmlSerializer(respuesta.GetType());
-                    serializer.Serialize(stringwriter, respuesta);
-                    XML_resp = stringwriter.ToString();
+                    var serializer = new XmlSerializer(pedidosSend.GetType());
+                    serializer.Serialize(stringwriter, pedidosSend);
+                    XMl_Req = stringwriter.ToString();
                 }
 
 
                 oSClient.Close();
 
                 // insert resp DB
-                sAPDao.InsertarXMLRespuestaDespachoSubidaPesos(CodigoSec,secuenciaXML, XML_resp,1);
+               // sAPDao.InsertarXMLRespuestaDespachoSubidaPesos(CodigoSec,secuenciaXML, XML_resp,1);
 
             }
             catch (Exception ex)
