@@ -11,6 +11,8 @@ using netServicioSAP.Utils;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
+using netServicioSAP.DAO;
+using System.Data;
 
 namespace netServicioSAP
 {
@@ -18,13 +20,35 @@ namespace netServicioSAP
     {
         static CreateLog create;
         static ProcessSap processSap;
+        static string urlSap = "",userMMSSap="",passwordMMSSap="";
         static void Main(string[] args)
         {
             create = new CreateLog();
             
             try
             {
-                
+                // SE RECUPERA INFORMACION DE LOS PARAMETROS SAP
+                servicioSAPDao sAPDao = new servicioSAPDao();
+                DataTable parametrosSAP = new DataTable();
+                sAPDao.parametrosSAP(ref parametrosSAP);
+
+                for (int i = 0; i < parametrosSAP.Rows.Count; i++)
+                {
+                    if (parametrosSAP.Rows[i]["mpa_nombreParametro"].ToString() == "urlServicioSap")
+                    {
+                        urlSap = Convert.ToString(parametrosSAP.Rows[i]["mpa_valor"].ToString());
+                    }
+                    else if (parametrosSAP.Rows[i]["mpa_nombreParametro"].ToString() == "userMMSSap")
+                    {
+                        userMMSSap = Convert.ToString(parametrosSAP.Rows[i]["mpa_valor"].ToString());
+                    }
+                    else if (parametrosSAP.Rows[i]["mpa_nombreParametro"].ToString() == "passwordMMSSap")
+                    {
+                        passwordMMSSap = Convert.ToString(parametrosSAP.Rows[i]["mpa_valor"].ToString());
+                    }
+
+                }
+
 
                 if (IsExecutingApplication() == false)
                 {
@@ -53,7 +77,7 @@ namespace netServicioSAP
             try
             {
                 processSap = new ProcessSap();
-                processSap.StartProcessSap();
+                processSap.StartProcessSap(urlSap,userMMSSap,passwordMMSSap);
                 //Console.WriteLine("Prueba Timer");
                 //Inserta_Log("Timer Finalizandooo " + DateTime.Now.ToString());
             }

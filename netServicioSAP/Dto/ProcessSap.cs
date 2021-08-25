@@ -20,7 +20,7 @@ namespace netServicioSAP.Dto
         servicioSAPDao sAPDao = new servicioSAPDao();
         CreateLog createLog = new CreateLog();
         private string CodigoSec = "",secuenciaXML="";
-        public void StartProcessSap()
+        public void StartProcessSap(string url,string user,string password)
         {
             try {
 
@@ -32,13 +32,15 @@ namespace netServicioSAP.Dto
                         string xml = inforSendSap.Rows[i][2].ToString();
                         CodigoSec = inforSendSap.Rows[i][0].ToString();
                         secuenciaXML = inforSendSap.Rows[i][1].ToString();
+                        //ImportacionPesosPedidosType importacionPesosPedidosType = new ImportacionPesosPedidosType();
+                        // FromXml(xml, importacionPesosPedidosType.GetType());
                         //Stopwatch stotwatch = new Stopwatch();
                         //stotwatch.Start();
-                                        
-                        readXMLSend(xml);
+
+                        readXMLSend(password,user,url,xml);
                         createLog.insertLog("Ruta enviada: " + secuenciaXML + " " + DateTime.Now.ToString());
-                        Console.WriteLine("Ruta enviada: "+ secuenciaXML +" "+DateTime.Now.ToString());
-                       
+                        Console.WriteLine("Ruta enviada: " + secuenciaXML + " " + DateTime.Now.ToString());
+
 
 
 
@@ -54,7 +56,7 @@ namespace netServicioSAP.Dto
             }
         }
 
-        public void readXMLSend(string xmlRequest)
+        public void readXMLSend(string url,string user,string password,string xmlRequest)
         {
             try {
 
@@ -199,7 +201,7 @@ namespace netServicioSAP.Dto
 
                
                 //SEND SAP
-                sendToSap(importacionPesosPedidos);
+                sendToSap(url,user,password, importacionPesosPedidos);
                
                 
 
@@ -210,7 +212,7 @@ namespace netServicioSAP.Dto
         
         }
 
-        public void sendToSap(ImportacionPesosPedidosType pedidosSend)
+        public void sendToSap(string url,string user, string password,ImportacionPesosPedidosType pedidosSend)
         {
             try {
 
@@ -221,10 +223,10 @@ namespace netServicioSAP.Dto
                 binding.CloseTimeout = new TimeSpan(0, 10, 0);
                 binding.SendTimeout = new TimeSpan(0, 10, 0);
                 binding.ReceiveTimeout = new TimeSpan(0, 10, 0);
-                EndpointAddress endpoint = new EndpointAddress("https://ndddev100.gcp.pronaca.com:50001/XISOAPAdapter/MessageServlet?senderParty=&senderService=BS_MMS_DEV_EC&receiverParty=&receiverService=&interface=ImportacionPesosPedidos_OS&interfaceNamespace=http://pronaca.com/INT011/mms/1.0/ImportacionPesosPedidos");
+                EndpointAddress endpoint = new EndpointAddress(url);
                 ImportacionPesosPedidos_OSClient oSClient = new ImportacionPesosPedidos_OSClient(binding, endpoint);
-                oSClient.ClientCredentials.UserName.UserName = "MMS_USER";
-                oSClient.ClientCredentials.UserName.Password = "D?#7;kK3e9g7.9";
+                oSClient.ClientCredentials.UserName.UserName = user;
+                oSClient.ClientCredentials.UserName.Password = password;
                 oSClient.Open();
 
                 //Stopwatch stotwatch = new Stopwatch();
@@ -234,19 +236,19 @@ namespace netServicioSAP.Dto
                 //Console.WriteLine(stotwatch.Elapsed.TotalSeconds);
 
                 //convert to XML
-                string XMl_Req = "";
+                string XML_resp = "";
                 using (var stringwriter = new System.IO.StringWriter())
                 {
-                    var serializer = new XmlSerializer(pedidosSend.GetType());
-                    serializer.Serialize(stringwriter, pedidosSend);
-                    XMl_Req = stringwriter.ToString();
+                    var serializer = new XmlSerializer(respuesta.GetType());
+                    serializer.Serialize(stringwriter, respuesta);
+                    XML_resp = stringwriter.ToString();
                 }
 
 
                 oSClient.Close();
 
                 // insert resp DB
-               // sAPDao.InsertarXMLRespuestaDespachoSubidaPesos(CodigoSec,secuenciaXML, XML_resp,1);
+                sAPDao.InsertarXMLRespuestaDespachoSubidaPesos(CodigoSec, secuenciaXML, XML_resp, 1);
 
             }
             catch (Exception ex)
@@ -255,7 +257,22 @@ namespace netServicioSAP.Dto
             }
         }
 
-       
+        public static object FromXml(string Xml, System.Type ObjType)
+        {
+
+            XmlSerializer ser;
+            ser = new XmlSerializer(ObjType);
+            StringReader stringReader;
+            stringReader = new StringReader(Xml);
+            XmlTextReader xmlReader;
+            xmlReader = new XmlTextReader(stringReader);
+            object obj;
+            obj = ser.Deserialize(xmlReader);
+            xmlReader.Close();
+            stringReader.Close();
+            return obj;
+
+        }
 
     }
 }

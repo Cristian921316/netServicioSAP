@@ -19,7 +19,8 @@ namespace netServicioSAP.DAO
         CreateLog createLog = new CreateLog();
         public DataTable getInformationSend()
         {
-            try {
+            try
+            {
 
                 if (_sqlConnection1.State == ConnectionState.Open)
                 {
@@ -29,7 +30,7 @@ namespace netServicioSAP.DAO
                 _sqlConnection1 = new SqlConnection(_conex);
                 var cmd = new SqlCommand
                 {
-                    CommandText = "XML_1_INTERFAZ_SAP_BUSCAR",
+                    CommandText = "XML_1_INTERFAZ_IMQ_BUSCAR",
                     CommandType = CommandType.StoredProcedure,
                     Connection = _sqlConnection1
                 };
@@ -40,8 +41,8 @@ namespace netServicioSAP.DAO
 
                 return listadoXML_DT;
 
-
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 
                 createLog.insertLog(ex.Message);
@@ -131,6 +132,37 @@ namespace netServicioSAP.DAO
             }
         }
 
+
+        public void parametrosSAP(ref DataTable parametrosDT)
+        {
+            try
+            {
+
+                if (_sqlConnection1.State == ConnectionState.Open)
+                {
+                    _sqlConnection1.Close();
+                }
+                var listadoParametros_DT = new DataTable();
+                _sqlConnection1 = new SqlConnection(_conex);
+                var cmd = new SqlCommand
+                {
+                    CommandText = "XML_4_INTERFAZ_SAP_PARAMETROS_CONEXION",
+                    CommandType = CommandType.StoredProcedure,
+                    Connection = _sqlConnection1
+                };
+                _sqlConnection1.Open();
+                var da = new SqlDataAdapter(cmd);
+                da.Fill(listadoParametros_DT);
+                _sqlConnection1.Close();
+
+                parametrosDT = listadoParametros_DT;
+
+            }
+            catch (Exception ex)
+            {
+                Console.Write("ERROR al buscar, Listado Parametros  IMQ" + ex.Message.ToString() + '\r');
+            }
+        }
 
     }
 }
