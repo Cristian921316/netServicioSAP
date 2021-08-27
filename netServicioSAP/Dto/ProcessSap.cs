@@ -37,7 +37,7 @@ namespace netServicioSAP.Dto
                         //Stopwatch stotwatch = new Stopwatch();
                         //stotwatch.Start();
 
-                        readXMLSend(password,user,url,xml);
+                        readXMLSend(url,user,password,xml);
                         createLog.insertLog("Ruta enviada: " + secuenciaXML + " " + DateTime.Now.ToString());
                         Console.WriteLine("Ruta enviada: " + secuenciaXML + " " + DateTime.Now.ToString());
 
@@ -174,7 +174,9 @@ namespace netServicioSAP.Dto
                                     else if (detalles.Name == "NumeroSugerencia") typeDetalleCabecera.NumeroSugerencia = detalles.InnerText.ToString();
                                     else if (detalles.Name == "ViajeCompleto") typeDetalleCabecera.ViajeCompleto = detalles.InnerText.ToString();
                                     else if (detalles.Name == "Almacen") typeDetalleCabecera.Almacen = detalles.InnerText.ToString();
-                                    
+                                    typeDetalleCabecera.Fase = "5";
+                                    typeDetalleCabecera.Estado = "5";
+                                    typeDetalleCabecera.Error = "5";
                                 }
                                 ListtypeDetalleCabecera.Add(typeDetalleCabecera);
                             }

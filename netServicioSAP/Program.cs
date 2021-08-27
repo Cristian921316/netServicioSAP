@@ -53,7 +53,7 @@ namespace netServicioSAP
                 if (IsExecutingApplication() == false)
                 {
                     create.insertLog("******************************** START SERVICES SEND SAP**************************************");
-                    Timer timer1 = new Timer(timer1_Tick, null, 0, 2000);
+                    Timer timer1 = new Timer(timer1_Tick, null, 0, 3000);
                     Console.ReadLine();
                 }
                 else
